@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="新竹市東區 2026 市議員盲測：隱去身分只看政見與議會紀錄，12 題配對最接近你的參選人，每條政見附原始出處連結。">
+<title>東區議員盲測選票</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap">
+<style>
+/* Layout: 一張直式選票。表頭 → 一次一題的圈選欄 → 開票結果 → 候選人圖鑑（作答後揭曉） → 方法與出處 */
+:root {
+  --paper: #edf1ea;
+  --sheet: #f8faf5;
+  --ink: #1b2822;
+  --muted: #5b6962;
+  --rule: #c6d0c7;
+  --accent: #2c5a47;
+  --accent-soft: #dbe7df;
+  --stamp: #c3301c;
+  --stamp-soft: #f6e0db;
+  --font-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121815; --sheet: #19211d; --ink: #e2e8e1; --muted: #9aa69f;
+    --rule: #2d3832; --accent: #86bfa3; --accent-soft: #22312a;
+    --stamp: #ee6550; --stamp-soft: #3a211c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121815; --sheet: #19211d; --ink: #e2e8e1; --muted: #9aa69f;
+  --rule: #2d3832; --accent: #86bfa3; --accent-soft: #22312a;
+  --stamp: #ee6550; --stamp-soft: #3a211c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.7;
+  padding: 24px 16px 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.3; }
+p { margin: 0; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* 表頭：仿選票抬頭 */
+.ballot-head { border: 2px solid var(--ink); background: var(--sheet); }
+.ballot-head .top { padding: 18px 20px 14px; display: grid; gap: 6px; border-bottom: 2px solid var(--ink); }
+.eyebrow { font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+.ballot-head h1 { font-size: clamp(28px, 6vw, 44px); font-weight: 900; letter-spacing: .04em; }
+.ballot-head .lede { color: var(--muted); max-width: 60ch; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.facts div { padding: 10px 14px; border-right: 1px solid var(--rule); display: grid; gap: 2px; min-width: 0; }
+.facts div:last-child { border-right: 0; }
+.facts dt { font-size: 12px; color: var(--muted); letter-spacing: .08em; }
+.facts dd { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 22px; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) {
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .facts div:nth-child(2) { border-right: 0; }
+  .facts div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+}
+
+/* 作答區 */
+.quiz { background: var(--sheet); border: 1px solid var(--rule); padding: 20px; display: grid; gap: 18px; }
+.progress { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+.progress span { height: 6px; background: var(--rule); }
+.progress span.done { background: var(--stamp); }
+.progress span.now { background: var(--ink); }
+.qmeta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); letter-spacing: .06em; }
+.qtitle { font-size: clamp(20px, 4.4vw, 26px); font-weight: 900; }
+.qhint { color: var(--muted); font-size: 14px; }
+.options { display: grid; gap: 0; border-top: 1px solid var(--ink); }
+.opt {
+  display: grid; grid-template-columns: 44px 1fr 56px; align-items: center;
+  border: 0; border-bottom: 1px solid var(--rule); background: transparent;
+  text-align: left; padding: 12px 4px; cursor: pointer; min-height: 64px;
+}
+.opt:hover { background: var(--accent-soft); }
+.opt .no { font-family: var(--font-display); font-weight: 900; font-size: 18px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.opt .txt { min-width: 0; }
+.opt .box { justify-self: center; width: 44px; height: 44px; border: 1.5px solid var(--rule); display: grid; place-items: center; }
+.opt.skip .txt { color: var(--muted); }
+.stamp {
+  width: 38px; height: 38px; border-radius: 50%; border: 3px solid var(--stamp);
+  color: var(--stamp); font-family: var(--font-display); font-weight: 900; font-size: 22px;
+  display: grid; place-items: center; transform: rotate(-12deg) scale(.4); opacity: 0;
+}
+.opt[aria-pressed="true"] { background: var(--stamp-soft); }
+.opt[aria-pressed="true"] .stamp { animation: press .22s ease-out forwards; }
+@keyframes press { 0% { opacity: 0; transform: rotate(-12deg) scale(1.6); } 100% { opacity: .92; transform: rotate(-12deg) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .opt[aria-pressed="true"] .stamp { animation: none; opacity: .92; transform: rotate(-12deg); } }
+.nav { display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+.btn { border: 1.5px solid var(--ink); background: transparent; padding: 10px 18px; cursor: pointer; font-weight: 700; }
+.btn.primary { background: var(--ink); color: var(--sheet); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* 開票結果 */
+.result { display: grid; gap: 20px; }
+.result h2, section > h2 { font-size: 26px; font-weight: 900; }
+.winner { border: 2px solid var(--stamp); background: var(--sheet); padding: 20px; display: grid; gap: 14px; }
+.winner .code { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.seal { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--stamp); color: var(--stamp); display: grid; place-items: center; font-family: var(--font-display); font-weight: 900; font-size: 30px; transform: rotate(-8deg); flex: none; }
+.winner .name { font-family: var(--font-display); font-size: clamp(28px, 6vw, 38px); font-weight: 900; }
+.winner .pct { font-size: 14px; color: var(--muted); }
+.bio { color: var(--muted); font-size: 15px; }
+.why { display: grid; gap: 6px; }
+.why h3 { font-size: 16px; }
+ul.ev { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+ul.ev li { font-size: 15px; }
+ul.ev li .links { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 2px; }
+ul.ev li .links a { font-size: 13px; text-underline-offset: 3px; }
+ul.ev li .links a::after { content: " ↗"; }
+.src { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.rank { display: grid; gap: 0; border-top: 1px solid var(--ink); }
+.rank-row { display: grid; grid-template-columns: 36px minmax(0, 7.5em) 1fr 52px; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.rank-row .r { font-family: var(--font-display); font-weight: 900; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.bar { height: 10px; background: var(--rule); position: relative; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+.rank-row:first-child .bar i { background: var(--stamp); }
+.rank-row .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.excluded { border: 2px solid var(--stamp); background: var(--stamp-soft); padding: 12px 14px; font-size: 15px; line-height: 1.7; }
+.excluded strong { color: var(--stamp); font-weight: 700; }
+.excluded b { font-family: var(--font-display); font-weight: 900; font-size: 17px; }
+.caveat { font-size: 14px; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 12px; }
+
+/* 圖鑑 */
+.dex { display: grid; gap: 16px; }
+.dex-intro { color: var(--muted); max-width: 62ch; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 12px; }
+.card { background: var(--sheet); border: 1px solid var(--rule); padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.card header { display: flex; align-items: center; gap: 12px; }
+.card .glyph { width: 44px; height: 44px; border: 1.5px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 900; font-size: 22px; flex: none; }
+.card .who { font-family: var(--font-display); font-weight: 900; font-size: 18px; }
+.card .who small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 13px; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 13px; padding: 2px 8px; background: var(--accent-soft); color: var(--accent); }
+.style { font-size: 14px; color: var(--muted); }
+.card.revealed { border-color: var(--ink); }
+.card details summary { cursor: pointer; font-size: 14px; color: var(--accent); }
+.card details[open] summary { margin-bottom: 6px; }
+.locked { font-size: 13px; color: var(--muted); }
+.thin { background: var(--sheet); border: 1px dashed var(--muted); padding: 16px; display: grid; gap: 8px; }
+.thin ul { margin: 0; padding-left: 1.2em; }
+
+/* 方法 */
+.method { display: grid; gap: 12px; font-size: 15px; }
+.method ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+.sources { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+.sources a { word-break: break-all; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 12px; }
+</style>
+<style>html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="ballot-head">
+    <div class="top">
+      <span class="eyebrow">2026 年新竹市議員選舉｜第 1 選舉區（東區）</span>
+      <h1>東區議員盲測選票</h1>
+      <p class="lede">12 道選擇題，每個選項都來自東區參選人實際提出的政見、議會提案或質詢內容。姓名、黨籍、年齡、性別、經歷全部遮住，只看他們在意什麼。作答完成後開票，揭曉你最接近哪一位。</p>
+    </div>
+    <dl class="facts">
+      <div><dt>應選名額</dt><dd>12 席</dd></div>
+      <div><dt>登記參選</dt><dd>19 人</dd></div>
+      <div><dt>納入配對</dt><dd>15 人</dd></div>
+      <div><dt>投票日</dt><dd>11/28</dd></div>
+    </dl>
+  </header>
+
+  <section class="quiz" id="quiz" aria-live="polite">
+    <div class="progress" id="progress"></div>
+    <div class="qmeta"><span id="qcount">第 1 題／共 12 題</span><span id="qtopic"></span></div>
+    <h2 class="qtitle" id="qtitle"></h2>
+    <p class="qhint">選一個你最在意的，蓋下圈選章。都不在意也可以跳過。</p>
+    <div class="options" id="options" role="group" aria-label="選項"></div>
+    <div class="nav">
+      <button class="btn" id="prev" type="button">上一題</button>
+      <button class="btn primary" id="next" type="button">下一題</button>
+    </div>
+  </section>
+
+  <section class="result" id="result" hidden>
+    <h2>開票結果</h2>
+    <div class="winner" id="winner"></div>
+    <div>
+      <h3 style="font-size:18px;margin-bottom:8px">你和每位參選人的契合度</h3>
+      <div class="rank" id="rank"></div>
+    </div>
+    <p class="caveat">契合度只比對「在意的議題」，不評價能力、操守或問政成績。資料多寡會影響準確度：現任議員有議會紀錄可查，新人主要依據競選政見與報導。投票前請再看中選會選舉公報與政見發表會。</p>
+    <div class="nav"><button class="btn" id="retake" type="button">重新作答</button></div>
+  </section>
+
+  <section class="dex" id="dex">
+    <h2>東區候選人圖鑑</h2>
+    <p class="dex-intro" id="dexIntro">15 位參選人的特點，從議會提案、質詢逐字稿、選舉公報、競選網站與新聞報導歸納。作答完成前只顯示代號，開票後揭曉身分與證據出處。</p>
+    <div class="cards" id="cards"></div>
+    <div class="thin">
+      <h3 style="font-size:17px">另有 4 位：公開資料不足，暫不納入配對</h3>
+      <p style="font-size:14px;color:var(--muted)">截至 2026 年 10 月 8 日，以下參選人查不到足以判斷議題重心的具體政見。中選會選舉公報出刊後會補進來。</p>
+      <ul id="thinList"></ul>
+    </div>
+  </section>
+
+  <section class="method">
+    <h2>怎麼做出來的</h2>
+    <ol>
+      <li>名單：新竹市選舉委員會 2026 年 9 月 4 日公告的第一選舉區 19 位登記參選人，對照中選會 2022 年選舉資料確認現任身分。</li>
+      <li>現任議員 9 位：抓取新竹市議會官網第 11 屆全部提案（共 1,338 件）依主題分類，並讀 114 年 11 月定期會的質詢逐字稿各 2 份。日常的鋪路、標線類提案每位議員都很多，所以選題時刻意挑「別人比較少提」的議題。</li>
+      <li>新人與前議員：依競選網站、2022 年選舉公報（曾參選者）與 2026 年新聞報導。</li>
+      <li>每個選項對應 1 到 4 位參選人，依該議題在其紀錄中的份量給 1 到 3 分。計分時以每位參選人「可能拿到的最高分」做分母，並加入保守修正，避免資料少的人因為一兩題就衝到頂端。</li>
+      <li>選項敘述刻意去除黨派語言與可辨識的個人經歷，只保留政策內容。</li>
+    </ol>
+    <div class="sources" id="sources"></div>
+  </section>
+
+  <footer>資料截至 2026 年 10 月 8 日。本頁所有計算都在你的瀏覽器裡完成，不收集、不回傳任何作答。這不是民意調查，結果不代表任何參選人的支持度。</footer>
+</div>
+
+<script>
+const EV = {"LCX": [{"t": "提案檢討學區劃分及新生分發辦法、中小學總量管制辦法", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061311063438369%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911052%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061216224590572%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911021%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第2次臨時會）"}]}, {"t": "提案設立新科高中新校、建功國中新生入學總量管制", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061311055356964%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911051%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061311051191850%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911050%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次臨時會）"}]}, {"t": "提案建立通勤共乘平台、YouBike 電輔車前 15 分鐘免費", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025121616321771105%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111474%E8%99%9F-%E5%8A%89%E5%B4%87%E9%A1%AF.pdf", "l": "議會提案 PDF（第11屆第18次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025121616341439550%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111476%E8%99%9F-%E5%8A%89%E5%B4%87%E9%A1%AF.pdf", "l": "議會提案 PDF（第11屆第18次臨時會）"}]}, {"t": "提案全市路口取消機車兩段式左轉", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025062709170222664%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111198%E8%99%9F-%E5%8A%89%E5%B4%87%E9%A1%AF.pdf", "l": "議會提案 PDF（第11屆第5次定期會）"}]}, {"t": "質詢新竹棒球場改善延宕、職業球團是否續營", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042715341551864%E5%96%AE09-%E5%8A%89%E5%B4%87%E9%A1%AF.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.10）"}]}], "FYY": [{"t": "協助長輩學會使用新軟體並防範詐騙，結合志工進社區", "s": [{"u": "https://udn.com/news/story/124652/9779789", "l": "聯合報 2026.9 報導"}]}, {"t": "舊城區「數位遊牧部落」共享辦公空間", "s": [{"u": "https://udn.com/news/story/124652/9779789", "l": "聯合報 2026.9 報導"}]}, {"t": "結合商圈與商家設置托育空間", "s": [{"u": "https://udn.com/news/story/124652/9779789", "l": "聯合報 2026.9 報導"}]}, {"t": "智慧垃圾設施、參考日本的智慧候車亭（遮風避雨、照明、Wi-Fi）", "s": [{"u": "https://udn.com/news/story/124652/9779789", "l": "聯合報 2026.9 報導"}]}], "ZMJ": [{"t": "提案敬老卡點數可在農會使用並開放家屬代領，追蹤兩年市府才同意", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061415204458960%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011584%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第2次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716323972373%E5%B8%8213--%E9%84%AD%E7%BE%8E%E5%A8%9F%28%E6%B0%91%E9%80%B2%E9%BB%A8%E5%9C%98%E8%81%AF%E5%90%88%E8%B3%AA%E8%A9%A2%29.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.19）"}]}, {"t": "提案帶狀皰疹疫苗補助提高到每人 5,000 元、購置大型復康巴士", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026061809154158505%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111728%E8%99%9F-%E9%84%AD%E7%BE%8E%E5%A8%9F.pdf", "l": "議會提案 PDF（第11屆第7次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061809025070773%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%9911640%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第8次臨時會）"}]}, {"t": "提案修正動物保護自治條例，增訂動物加害人罰則", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025031716472539433%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%9911710%E8%99%9F-%E9%84%AD%E7%BE%8E%E5%A8%9F.pdf", "l": "議會提案 PDF（第11屆第14次臨時會）"}]}, {"t": "提案建立鼠患監測預警、收費機車格前 30 分鐘免費", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026061809121155779%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111724%E8%99%9F-%E9%84%AD%E7%BE%8E%E5%A8%9F.pdf", "l": "議會提案 PDF（第11屆第7次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025062709140729070%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111195%E8%99%9F-%E9%84%AD%E7%BE%8E%E5%A8%9F.pdf", "l": "議會提案 PDF（第11屆第5次定期會）"}]}, {"t": "質詢公道五路高架橋隔音牆與改裝車噪音取締", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042714214923893%E5%96%AE03-%E9%84%AD%E7%BE%8E%E5%A8%9F.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.07）"}]}], "CQZ": [{"t": "公私協力讓托育量倍增、強化銀髮社區照護", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "社宅加速興建、青銀共居，盤點閒置空間活用", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "田園城市小農據點、永續農業與食農教育", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "客家文化「看得到、聽得到、學得到」", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "青年事務服務升級、空間活化成青年基地", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}], "LYF": [{"t": "擴增臨時、夜間與到宅托育（引用東區 6 歲以下 13,714 人、臨托保母僅 34 位）", "s": [{"u": "https://yufenlovehsinchu.com/#policy", "l": "競選網站・核心政見"}]}, {"t": "早療「入園即評估」、30 日內完成聯評報告", "s": [{"u": "https://yufenlovehsinchu.com/#early-therapy", "l": "競選網站・顧早療"}]}, {"t": "成立跨局處打詐專責小組並按季公開報告", "s": [{"u": "https://yufenlovehsinchu.com/#policy", "l": "競選網站・核心政見"}, {"u": "https://www.taiwanhot.net/news/1137547/%E6%89%93%E8%A9%90%E6%94%BF%E8%A6%8B%E5%BC%95%E9%97%9C%E6%B3%A8+%E6%9D%B1%E5%8D%80%E8%AD%B0%E5%93%A1%E5%8F%83%E9%81%B8%E4%BA%BA%E6%9E%97%E5%A6%A4%E8%8A%AC%E5%91%BC%E7%B1%B2%E9%87%8D%E8%A6%96%E5%88%B6%E5%BA%A6", "l": "台灣好新聞 2026.5 報導"}]}, {"t": "將社會情緒學習（SEL）納入反霸凌", "s": [{"u": "https://yufenlovehsinchu.com/#policy", "l": "競選網站・核心政見"}]}, {"t": "數位設備與軟體授權編入常態預算；預防型長照與銀髮法律規劃；提高寵物絕育補助", "s": [{"u": "https://yufenlovehsinchu.com/#policy", "l": "競選網站・核心政見"}]}], "ZZY": [{"t": "質詢市府公務員平均服務 417 人、基隆僅 266 人，要求爭取員額", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716570388484%E5%B8%8233--%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.22）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042715541318661%E5%96%AE18-%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.11）"}]}, {"t": "提案調整國中導師授課節數、專任輔導老師職務加給、逐步降低班級人數", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061409035779236%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911101%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第4次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026020216052895244%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911401%E8%99%9F-%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "議會提案 PDF（第11屆第19次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026020216025979146%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911399%E8%99%9F-%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "議會提案 PDF（第11屆第19次臨時會）"}]}, {"t": "提案公幼幼幼班師生比逐年降到 1 比 5、設置視障重點學校", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026071315300227656%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911483%E8%99%9F-%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "議會提案 PDF（第11屆第23次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024090213304018402%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911244%E8%99%9F-%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "議會提案 PDF（第11屆第11次臨時會）"}]}, {"t": "提案重整公車路網、開竹北與關埔至園區的通勤巡迴巴士", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025091616515877791%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111320%E8%99%9F-%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "議會提案 PDF（第11屆第17次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061312584387761%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011155%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次臨時會）"}]}, {"t": "提案推動「友善育兒城市計畫」改善厭童現象；防治高峰植物園琉璃蟻", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026042809504448181%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111611%E8%99%9F-%E5%BC%B5%E7%A5%96%E7%90%B0.pdf", "l": "議會提案 PDF（第11屆第21次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061411061793784%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011435%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第5次臨時會）"}]}], "CZY": [{"t": "改善外送夥伴勞動條件，推動外送平台業者管理條例", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "打造動物友善城市、全面結紮流浪動物、設立任務編制動保警察", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "守護頭前溪、設立河川巡守隊，推廣塑膠減量", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "公民審議、政治實習學院、民意代表監督機制", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "2026 年主打外送員權益、動保、環境與婦幼", "s": [{"u": "https://udn.com/news/story/124652/9568814", "l": "聯合報 2026.6 報導"}]}], "LYL": [{"t": "質詢介壽路機車迴轉與待轉區問題、提案取消機車強制兩段式左轉", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042715563385483%E5%96%AE21-%E5%8A%89%E5%BD%A5%E4%BC%B6.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.12）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026042810372958169%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111648%E8%99%9F-%E5%8A%89%E5%BD%A5%E4%BC%B6.pdf", "l": "議會提案 PDF（第11屆第21次臨時會）"}]}, {"t": "提案比照台北獎勵運動選手與教練、補助自由車選手外地訓練、馬拉松增設輪椅組", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061409570681079%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911108%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第5次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026071517321258844%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911500%E8%99%9F-%E5%8A%89%E5%BD%A5%E4%BC%B6.pdf", "l": "議會提案 PDF（第11屆第24次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024120915415942511%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911269%E8%99%9F-%E5%8A%89%E5%BD%A5%E4%BC%B6.pdf", "l": "議會提案 PDF（第11屆第4次定期會）"}]}, {"t": "提案「班班喝鮮乳」擴大到國中、好孕專車手續費不轉嫁計程車司機", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026051411092512077%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911440%E8%99%9F-%E5%8A%89%E5%BD%A5%E4%BC%B6.pdf", "l": "議會提案 PDF（第11屆第22次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026071409183589551%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111818%E8%99%9F-%E5%8A%89%E5%BD%A5%E4%BC%B6.pdf", "l": "議會提案 PDF（第11屆第23次臨時會）"}]}, {"t": "質詢 387 坪公園用地限期提出規劃、勞青處旁設圖書館自修室", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716354059748%E5%B8%8219%E3%80%8120--%E5%8A%89%E5%BD%A5%E4%BC%B6%E3%80%81%E6%9B%BE%E8%B3%87%E7%A8%8B%28%E6%B0%91%E9%80%B2%E9%BB%A8%E5%9C%98%E8%81%AF%E5%90%88%E8%B3%AA%E8%A9%A2%29.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.20）"}]}, {"t": "提案成立都市更新專案辦公室", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024072317013830963%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%99%2011532%20%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第10次臨時會）"}]}], "HWZ": [{"t": "質詢活動中心出入口高低差造成長輩跌倒，要求全市盤點", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716002341905%E5%96%AE27-%E9%BB%83%E6%96%87%E6%94%BF.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.13）"}]}, {"t": "質詢主計處公務統計系統資料一片空白", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716301593877%E5%B8%8209--%E9%BB%83%E6%96%87%E6%94%BF.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.18）"}]}, {"t": "提案垃圾車定時定點服務、設立鄰里創生種子基金活化高架橋下空間", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025062709022628989%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111186%E8%99%9F-%E9%BB%83%E6%96%87%E6%94%BF.pdf", "l": "議會提案 PDF（第11屆第5次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026061810071458364%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111772%E8%99%9F-%E9%BB%83%E6%96%87%E6%94%BF.pdf", "l": "議會提案 PDF（第11屆第7次定期會）"}]}, {"t": "提案公共場所設置無障礙照護床、0 到 6 歲幼兒家長就業補助", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026071608513981842%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111837%E8%99%9F-%E9%BB%83%E6%96%87%E6%94%BF.pdf", "l": "議會提案 PDF（第11屆第24次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061414091040184%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011494%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第2次定期會）"}]}, {"t": "提案提高客家文化活動補助、建立客語認證；敬老卡在農會的代領方式", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024071615393517506%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%99%2011205%20%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024071615410262568%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%99%2011206%20%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061414095558990%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011495%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第2次定期會）"}]}], "QKM": [{"t": "AI 影像辨識自動調整號誌秒數、尖峰智慧調撥車道", "s": [{"u": "https://www.chienkangming2026.com/blog/7-11", "l": "競選網站・7-11 政見"}]}, {"t": "計時制托育據點，手機 App 預約", "s": [{"u": "https://www.chienkangming2026.com/blog/7-11", "l": "競選網站・7-11 政見"}]}, {"t": "一站式市民服務 App、城市大數據防災指揮中心", "s": [{"u": "https://www.chienkangming2026.com/blog/7-11", "l": "競選網站・7-11 政見"}]}, {"t": "社區巡迴藝術節、閒置公有空間轉藝文特區、文史數位典藏", "s": [{"u": "https://www.chienkangming2026.com/blog/7-11", "l": "競選網站・7-11 政見"}]}, {"t": "青創基地與創業貸款利息補貼；中小學 AI 課程與跨國姊妹校", "s": [{"u": "https://www.chienkangming2026.com/blog/7-11", "l": "競選網站・7-11 政見"}]}], "SPY": [{"t": "質詢空橋建設進度、完全中學未編列預算", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716340439603%E5%B8%8216--%E5%AE%8B%E5%93%81%E7%91%A9.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.19）"}]}, {"t": "質詢托嬰中心改名後重新營業、公私托稽查頻率", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042715495231184%E5%96%AE15-%E5%AE%8B%E5%93%81%E7%91%A9.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.11）"}]}, {"t": "提案東光陸橋、公道五陸橋設隔音牆，上下班大型路口人車分流", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026051411103140720%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%99111059%E8%99%9F-%E5%AE%8B%E5%93%81%E7%91%A9.pdf", "l": "議會提案 PDF（第11屆第22次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061315482013213%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011227%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第1次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061809264853316%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%9911657%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第8次臨時會）"}]}, {"t": "提案雙語課程擴及藝術與生活領域、修訂代課老師導師費", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061410000179637%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911112%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第5次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026020216260936332%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911420%E8%99%9F-%E5%AE%8B%E5%93%81%E7%91%A9.pdf", "l": "議會提案 PDF（第11屆第19次臨時會）"}]}, {"t": "提案以液態氮撲滅紅火蟻、協助安置遊民", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024071614384790346%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%99%2011477%20%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024072317155582026%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011821%20%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第10次臨時會）"}]}], "ZWX": [{"t": "關埔二期教育量能總體檢，爭取新學校與 K-12 科技雙語示範學校", "s": [{"u": "https://mypeoplevol.com/2026/local/107586", "l": "民眾新聞網 2026 報導"}]}, {"t": "提高特教助理員待遇，增設專任心理諮商師與社工", "s": [{"u": "https://mypeoplevol.com/2026/local/107586", "l": "民眾新聞網 2026 報導"}]}, {"t": "AI 智慧號誌、龍山慈雲停車場立體化並銜接空橋", "s": [{"u": "https://mypeoplevol.com/2026/local/107586", "l": "民眾新聞網 2026 報導"}]}, {"t": "設置關埔樂齡中心（含托育、托嬰），閒置空間轉公托或親子館", "s": [{"u": "https://mypeoplevol.com/2026/local/107586", "l": "民眾新聞網 2026 報導"}, {"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}, {"t": "恢復慈雲夜市；爭取寵物公園與親水公園", "s": [{"u": "https://mypeoplevol.com/2026/local/107586", "l": "民眾新聞網 2026 報導"}]}], "CHT": [{"t": "提案學校聘用會接觸孩童的人員前，每年查詢性侵害紀錄", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026042808422962345%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911437%E8%99%9F-%E8%94%A1%E6%83%A0%E5%A9%B7.pdf", "l": "議會提案 PDF（第11屆第21次臨時會）"}]}, {"t": "質詢少子化減班：東區 12 歲 3,794 人、今年出生 1,497 人", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716382628355%E5%B8%8223--%E8%94%A1%E6%83%A0%E5%A9%B7.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.20）"}]}, {"t": "質詢公園改建應辦兒童參與式工作坊", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716005053423%E5%96%AE28-%E8%94%A1%E6%83%A0%E5%A9%B7.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.13）"}]}, {"t": "提案教師假日出勤勞動權益、校長遴選制度修正、竹竹苗會考制度公聽會", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025120315472548832%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911378%E8%99%9F-%E8%94%A1%E6%83%A0%E5%A9%B7.pdf", "l": "議會提案 PDF（第11屆第6次定期會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2026071517180053037%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911493%E8%99%9F-%E8%94%A1%E6%83%A0%E5%A9%B7.pdf", "l": "議會提案 PDF（第11屆第24次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024072316003960606%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%99%2011237%20%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第10次臨時會）"}]}, {"t": "提案盤查公有建築電梯許可證、AED 擺放；建商交通成本不得外推給市府", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061409051643220%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911103%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第4次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061409465036513%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011373%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第4次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025120408250962782%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%9911904%E8%99%9F-%E8%94%A1%E6%83%A0%E5%A9%B7.pdf", "l": "議會提案 PDF（第11屆第6次定期會）"}]}], "ZSY": [{"t": "質詢再生水廠 BTO 契約、輸水管線使用公有地應收租金，避免市府收爛攤子", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026092216555655317%E5%96%AE23-%E9%8D%BE%E6%B7%91%E8%8B%B1.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.12）"}]}, {"t": "提案頭前溪左岸設標準足球場、建功公園風雨籃球場、籃球專任教練", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061214581111024%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911008%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第1次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061215232179508%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%99%2011022%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第1次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061214573225894%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911007%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第1次臨時會）"}]}, {"t": "提案新竹瓦斯整壓站管線全面檢測、增補警察人力", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061409075454608%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%99%2011236%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第4次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061215511645059%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99%2011024%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第1次臨時會）"}]}, {"t": "質詢約用人員「禁止因人設事」、工務處遷址停車規劃", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716564367066%E5%B8%8232--%E9%8D%BE%E6%B7%91%E8%8B%B1.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.22）"}]}, {"t": "2022 年政見：解編東區水源保護區、眷村文化傳承、世代共融日照", "s": [{"u": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=15", "l": "議會官網議員頁（2022 年政見）"}]}], "LGZ": [{"t": "質詢早療補助與桃園、台中比較，要求延伸至學齡", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/41/2026042716150679064%E5%96%AE33-%E6%9D%8E%E5%9C%8B%E7%92%8B.pdf", "l": "質詢逐字稿 PDF（第6次定期會 114.11.14）"}]}, {"t": "提案提升消防人員員額、要求瓦斯公司全面檢修老舊管路", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061810320445725%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%9911697%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第9次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061409234790088%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%99%2011256%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第4次臨時會）"}]}, {"t": "提案國民運動中心增加長者公益時段、改善長青學苑報名", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061411222311603%E6%95%99%E8%82%B2%E9%A1%9E%E4%B9%9911131%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第6次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025031814102451376%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111076%E8%99%9F-%E6%9D%8E%E5%9C%8B%E7%92%8B.pdf", "l": "議會提案 PDF（第11屆第14次臨時會）"}]}, {"t": "提案規劃共融式無障礙公園、整合型市民 App", "s": [{"u": "https://www.hsinchu-cc.gov.tw/upload/42/2024061311284091796%E5%BB%BA%E8%A8%AD%E9%A1%9E%E4%B9%99%2011094%E8%99%9F.pdf", "l": "議會提案 PDF（第11屆第3次臨時會）"}, {"u": "https://www.hsinchu-cc.gov.tw/upload/42/2025031814111966227%E6%B0%91%E6%94%BF%E9%A1%9E%E4%B9%99111077%E8%99%9F-%E6%9D%8E%E5%9C%8B%E7%92%8B.pdf", "l": "議會提案 PDF（第11屆第14次臨時會）"}]}, {"t": "2022 年政見：試辦安心通學車、關懷站照服員人力", "s": [{"u": "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf", "l": "中選會 2022 年選舉公報 PDF"}]}]};
+const PROFILE = {"LCX": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=14", "ZMJ": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=5", "ZZY": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=11", "LYL": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=6", "HWZ": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=9", "SPY": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=7", "CHT": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=10", "ZSY": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=15", "LGZ": "https://www.hsinchu-cc.gov.tw/tc/councilor.aspx?mid=39&c=13"};
+const C = {
+  LCX: { code: "甲", name: "劉崇顯", bio: "現任東區議員，前聯電研發工程師，現回竹科任工程師。民進黨東區初選未出線後，自行登記參選（登記身分以選委會公告為準）。",
+    tags: ["學區與入學制度", "通勤減碳：共乘、YouBike", "運動場館進度"], style: "追問制度辦法與工程時程。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  FYY: { code: "乙", name: "樊一嶢", bio: "30 歲首次參選，國民黨報准參選。",
+    tags: ["長輩數位與防詐", "智慧城市設施", "舊城活化與共享辦公"], style: "以社區走訪、科技工具準備選戰。",
+    src: "聯合報 2026 年 9 月報導" },
+  ZMJ: { code: "丙", name: "鄭美娟", bio: "現任東區議員，民進黨提名（2026 黨內初選民調第一）。",
+    tags: ["長輩福利：敬老卡、疫苗", "噪音與環境衛生", "動物保護"], style: "從陳情案件出發，長期追到市府讓步。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  CQZ: { code: "丁", name: "陳清智", bio: "科技公司董事長、金山面在地社團負責人，國民黨提名。2022 年曾參選東區議員。",
+    tags: ["托育與青銀共居", "客家與在地文化", "田園城市與食農"], style: "以在地社團與產業網絡為基礎。",
+    src: "2022 年選舉公報政見（2026 年版待公報出刊）" },
+  LYF: { code: "戊", name: "林妤芬", bio: "執業律師、新竹市社區關懷法律服務協會理事長，無黨籍。",
+    tags: ["托育與早療", "防詐與治安", "校園反霸凌"], style: "每項政見附數據與可追蹤目標。",
+    src: "競選網站 yufenlovehsinchu.com" },
+  ZZY: { code: "己", name: "張祖琰", bio: "現任東區議員，前工研院材料所主任、化學博士，國民黨提名。",
+    tags: ["教師與公務人力", "特教與幼教品質", "大眾運輸"], style: "拿縣市比較數字要求制度調整。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  CZY: { code: "庚", name: "陳珍裕", bio: "外送員 6 年、動物保護志工，無黨籍。2022 年曾參選東區議員。",
+    tags: ["基層勞工與外送權益", "動物保護", "河川與環境"], style: "強調公民參與與政治改革。",
+    src: "2022 年選舉公報、聯合報 2026 年 6 月報導" },
+  LYL: { code: "辛", name: "劉彥伶", bio: "現任東區議員，民進黨提名。本屆提案 310 件，為東區最多。",
+    tags: ["機車族交通動線", "運動選手與賽事", "親子公園與自修空間"], style: "提案量大，質詢時限期要市府書面回覆。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  HWZ: { code: "壬", name: "黃文政", bio: "現任東區議員，曾任里長，主打選民服務。未獲國民黨提名，自行登記參選（登記身分以選委會公告為準）。",
+    tags: ["長輩活動空間安全", "垃圾清運與鄰里設施", "施政數據"], style: "以選民服務為主軸。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  QKM: { code: "癸", name: "錢康明", bio: "前新竹市文化局長，無黨籍。",
+    tags: ["AI 交通與智慧治理", "藝文與地方創生", "青年創業"], style: "強調監督市政與清廉。",
+    src: "競選網站「7-11 政見」" },
+  SPY: { code: "子", name: "宋品瑩", bio: "現任東區議員，前高中英文老師、英語教學 YouTuber，民眾黨提名。",
+    tags: ["通學與行人安全", "雙語與學校量能", "托嬰安全"], style: "小型建設逐件處理。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  ZWX: { code: "丑", name: "張文興", bio: "前龍山里長、前新竹市家長會長協會理事長，國民黨提名。2022 年曾參選東區議員。",
+    tags: ["就近入學與新校", "特教與心理支持", "樂齡與托育空間"], style: "從教育現場與家長經驗出發。",
+    src: "民眾新聞網 2026 年報導、2022 年選舉公報" },
+  CHT: { code: "寅", name: "蔡惠婷", bio: "現任東區議員（2018 年起），前國小教師，時代力量提名。",
+    tags: ["校園安全與教育制度", "兒童遊戲權與公園", "公共設施安全稽核"], style: "用數據和他縣市比較，要求制度透明。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  ZSY: { code: "卯", name: "鍾淑英", bio: "現任東區議員，國民黨提名。",
+    tags: ["運動場地與校隊", "大型契約與財政監督", "警力與公共安全"], style: "盯工程與契約的權責分界。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄" },
+  LGZ: { code: "辰", name: "李國璋", bio: "第 7、9、10、11 屆新竹市議員，前新竹果菜市場總經理，民眾黨提名。",
+    tags: ["早療與兒少福利", "長者與無障礙", "消防與公共安全"], style: "以社福背景比較各縣市補助。",
+    src: "新竹市議會第 11 屆提案、質詢紀錄、2022 年選舉公報" }
+};
+
+const THIN = [
+  ["鄭宏輝", "前五屆新竹市議員，民進黨提名。報導僅見參選動機，未見 2026 年具體政見。"],
+  ["曾翰揚", "水源里長，民進黨提名。報導僅見背景，未見 2026 年具體政見。"],
+  ["許登淇", "前市府秘書、義消。報導對其登記黨籍說法不一，未見具體政見。"],
+  ["劉詳樽", "查無公開政見或相關報導。"]
+];
+
+// 每題選項：t 文字，w 對應參選人與權重（3 招牌議題、2 明確關注、1 相關）
+const Q = [
+  { topic: "交通", title: "東區塞車，你希望議員先推哪一招？", o: [
+    { t: "重整公車路網，開竹北、關埔到園區的通勤巡迴巴士", w: { ZZY: 3, LGZ: 1 } },
+    { t: "用 AI 影像辨識自動調整紅綠燈秒數，尖峰時段調撥車道", w: { QKM: 3, ZWX: 3 } },
+    { t: "推通勤共乘平台，YouBike 電輔車前 15 分鐘免費", w: { LCX: 3, LYF: 2 } },
+    { t: "取消機車強制兩段式左轉，把機車族回家的迴轉動線理順", w: { LYL: 3, LCX: 2 } },
+    { t: "蓋空橋、大型路口上下班人車分流", w: { SPY: 3, ZWX: 1, CZY: 1 } },
+    { t: "違停科技執法、增聘交通助理員協助開單", w: { CHT: 2, ZMJ: 2 } } ] },
+  { topic: "入學", title: "說到孩子上學，你最擔心哪件事？", o: [
+    { t: "學區劃分和總量管制，抽不到家附近的學校", w: { LCX: 3, ZWX: 2, CZY: 1 } },
+    { t: "人口暴增區學校蓋不夠，該爭取新校或完全中學", w: { SPY: 3, ZWX: 3, LCX: 2 } },
+    { t: "校園霸凌，希望學校教孩子處理情緒", w: { LYF: 3 } },
+    { t: "會進校園接觸孩子的人，有沒有先查過性侵害紀錄", w: { CHT: 3 } },
+    { t: "通學步道斷斷續續、校門口沒有安全的臨停接送區", w: { HWZ: 2, SPY: 2, CHT: 1, LGZ: 2 } } ] },
+  { topic: "學校", title: "如果市府多了一筆教育經費，你希望先花在哪？", o: [
+    { t: "老師的工作條件：導師授課節數、輔導老師加給、假日出勤權益", w: { ZZY: 3, CHT: 3, SPY: 1 } },
+    { t: "特教支持：特教助理員待遇、心理師與社工、視障教材設備", w: { ZWX: 3, ZZY: 2, CHT: 2 } },
+    { t: "AI 課程、雙語教學、跨國姊妹校", w: { QKM: 3, SPY: 2, ZWX: 1 } },
+    { t: "數位設備和軟體授權編進常態預算，加強技職探索", w: { LYF: 3 } },
+    { t: "學校運動校隊：專任教練、球桌球場更新", w: { ZSY: 3, LYL: 1 } },
+    { t: "自修室和圖書館座位，讓學生有地方念書", w: { LYL: 3, CHT: 1, ZZY: 1 } } ] },
+  { topic: "育兒", title: "家裡有小小孩，你最需要市府幫什麼忙？", o: [
+    { t: "擴充臨時托育、夜間托育、到宅托育", w: { LYF: 3, ZZY: 1 } },
+    { t: "社區計時托育據點，用手機 App 就能預約", w: { QKM: 3, FYY: 2 } },
+    { t: "公私協力讓托育量倍增，閒置空間改成公托或親子館", w: { CQZ: 3, ZWX: 2 } },
+    { t: "公幼師生比降低，加強托嬰中心稽查與不適任人員管理", w: { ZZY: 2, SPY: 3 } },
+    { t: "公園遊具讓孩子參與設計，沙坑記得遮陽", w: { CHT: 3, LYL: 2, ZMJ: 1 } },
+    { t: "早療：入園就評估，補助延伸到學齡", w: { LGZ: 3, LYF: 2 } } ] },
+  { topic: "長輩", title: "家裡的長輩，你最希望議員替他們爭取什麼？", o: [
+    { t: "敬老卡點數開放家屬代領，帶狀皰疹疫苗補助加碼", w: { ZMJ: 3, HWZ: 2 } },
+    { t: "活動中心出入口和無障礙設施，別讓長輩跌倒", w: { HWZ: 3, LGZ: 2 } },
+    { t: "社區據點導入智慧健康量測，數據連到子女手機", w: { QKM: 3 } },
+    { t: "志工教長輩用手機、認識詐騙手法", w: { FYY: 3, LYF: 1 } },
+    { t: "預防型長照，加上遺囑、醫療決定等銀髮法律規劃", w: { LYF: 3 } },
+    { t: "世代共融日照、樂齡中心、青銀共居", w: { CQZ: 3, ZWX: 2, ZSY: 2 } } ] },
+  { topic: "安全", title: "城市安全，你覺得哪裡最該補強？", o: [
+    { t: "警察和消防人力補足", w: { ZSY: 3, LGZ: 3 } },
+    { t: "瓦斯管線全面檢測、老舊管路汰換", w: { ZSY: 2, LGZ: 2 } },
+    { t: "公共場所 AED 擺放與電梯許可證逾期盤查", w: { CHT: 3, HWZ: 1 } },
+    { t: "跨局處打詐專責小組，定期公開成效", w: { LYF: 3, FYY: 1 } },
+    { t: "移動式 AI 監視器，守護婦女和兒童", w: { CZY: 3 } },
+    { t: "整合氣象、水情、交通的城市防災指揮中心", w: { QKM: 3 } } ] },
+  { topic: "環境", title: "住家附近的生活品質，你最受不了哪一項？", o: [
+    { t: "高架橋車聲和改裝車噪音，晚上睡不好", w: { ZMJ: 3, SPY: 2 } },
+    { t: "老鼠、紅火蟻、琉璃蟻這類蟲鼠害", w: { ZMJ: 2, SPY: 2, ZZY: 2 } },
+    { t: "垃圾車時間配合不上，希望有定時定點收運", w: { HWZ: 3, ZMJ: 1, FYY: 1 } },
+    { t: "河川和水源沒人顧，希望有巡守和減塑", w: { CZY: 3, ZSY: 1 } },
+    { t: "流浪動物與寵物：絕育補助、動保罰則、寵物公園", w: { CZY: 3, LYF: 2, ZMJ: 2, ZWX: 1 } } ] },
+  { topic: "監督", title: "你最希望議員在議會裡盯住市府哪件事？", o: [
+    { t: "大型契約的權責：外包廠商要付公有地租金，別讓市府收爛攤子", w: { ZSY: 3 } },
+    { t: "市府人力長年不足，替基層公務員爭取員額", w: { ZZY: 3 } },
+    { t: "建商開發把交通成本丟給市府，圖審制度要改", w: { CHT: 3 } },
+    { t: "施政統計資料空白，政策要有數據根據", w: { HWZ: 3 } },
+    { t: "上次答應的事有沒有做到，限期給書面報告", w: { LYL: 3, LCX: 2, ZMJ: 1 } },
+    { t: "公民審議、民意代表監督機制，讓市民直接參與", w: { CZY: 3, CHT: 1 } } ] },
+  { topic: "城市服務", title: "你覺得新竹市最缺哪一種「新東西」？", o: [
+    { t: "一站式市民 App：申辦、補助、車位查詢一次搞定", w: { QKM: 3, LGZ: 2 } },
+    { t: "能遮風避雨、有照明和 Wi-Fi 的智慧候車亭", w: { FYY: 3, HWZ: 2 } },
+    { t: "舊城區的共享辦公空間，吸引數位遊牧族", w: { FYY: 3, LYF: 1, QKM: 1 } },
+    { t: "青年創業基地，加上創業貸款利息補貼", w: { QKM: 2, CQZ: 2 } },
+    { t: "鄰里創生基金，把高架橋下和閒置空地活化", w: { HWZ: 3, CQZ: 2, ZSY: 1 } } ] },
+  { topic: "文化", title: "哪一種在地文化，你最想看到它被好好保存？", o: [
+    { t: "眷村文化與眷村美食", w: { ZSY: 3 } },
+    { t: "客家文化：看得到、聽得到、學得到", w: { CQZ: 3, HWZ: 2, LYL: 1 } },
+    { t: "社區巡迴藝術節、閒置公有空間變藝文特區", w: { QKM: 3, LYF: 1 } },
+    { t: "夜市、傳統市場和老商圈", w: { ZWX: 2, LYF: 1, FYY: 1, ZSY: 1 } },
+    { t: "田園城市：小農據點與食農教育", w: { CQZ: 3 } },
+    { t: "運動文化：棒球場、自由車場、市民馬拉松", w: { LYL: 3, LCX: 2, ZSY: 1 } } ] },
+  { topic: "弱勢", title: "哪一群人的處境，你最希望議員替他們出聲？", o: [
+    { t: "外送員等平台工作者的勞動條件", w: { CZY: 3 } },
+    { t: "身心障礙者：無障礙照護床、共融公園、復康巴士", w: { LGZ: 3, HWZ: 2, ZMJ: 2 } },
+    { t: "發展遲緩兒童和他們的家庭", w: { LGZ: 2, LYF: 3 } },
+    { t: "特殊生和第一線老師，衝突時沒有支援", w: { CHT: 3, ZWX: 2 } },
+    { t: "雙薪家長：課後諮詢、就業補助", w: { ZWX: 2, HWZ: 2 } },
+    { t: "第一線司機和服務人員，社福成本被轉嫁到他們身上", w: { LYL: 2 } } ] },
+  { topic: "議員角色", title: "你心目中的好議員，最像哪一種？", o: [
+    { t: "小事也做：鋪路、遷電箱、修人行道，陳情一件件解決", w: { SPY: 3, HWZ: 3, LYL: 2, ZMJ: 2 } },
+    { t: "拿數據和其他縣市比，逼市府改制度", w: { CHT: 3, ZZY: 3, LGZ: 2 } },
+    { t: "把自己的專業帶進議會，例如法律、科技、文化", w: { LYF: 3, QKM: 3, LCX: 1 } },
+    { t: "把第一線勞動者和基層的聲音帶進議會", w: { CZY: 3 } },
+    { t: "盯住公共工程和預算，權責分清楚", w: { ZSY: 3, LCX: 1 } },
+    { t: "新世代用新工具，貼近社區、走進鄰里", w: { FYY: 3, CQZ: 1 } } ] }
+];
+
+const SOURCES = [
+  ["新竹市選委會：第 12 屆市長、市議員登記完成公告", "https://web.cec.gov.tw/hcec/article/64636"],
+  ["新竹市議會：議員介紹（政見、提案、質詢紀錄）", "https://www.hsinchu-cc.gov.tw/tc/councilors.aspx?mid=39"],
+  ["中選會：111 年新竹市議員第 1 選舉區選舉公報", "https://eebulletin.cec.gov.tw/111/22%E6%96%B0%E7%AB%B9%E5%B8%82/02%E5%B8%82%E8%AD%B0%E5%93%A1/%E6%96%B0%E7%AB%B9%E5%B8%82%E7%AC%AC01%E9%81%B8%E8%88%89%E5%8D%80.pdf"],
+  ["歐噴資料庫：中選會候選人資料（2022 年東區名單與現任註記）", "https://data.openfun.tw/datasets/tw.gov.cec~ref~candidates"],
+  ["聯合報：選情初探／竹市東區 政黨難通吃（2026.7.30）", "https://udn.com/news/story/124652/9659261"],
+  ["聯合報：竹市議員選戰大混戰 東區 19 人參選（2026.9.4）", "https://udn.com/vote2026/story/124652/9735365"],
+  ["林妤芬競選網站", "https://yufenlovehsinchu.com/"],
+  ["錢康明競選網站：7-11 政見", "https://www.chienkangming2026.com/blog/7-11"],
+  ["民眾新聞網：張文興倡議教育優先、改善交通、老幼共好", "https://mypeoplevol.com/2026/local/107586"],
+  ["聯合報：樊一嶢用 AI 當選舉教練", "https://udn.com/news/story/124652/9779789"],
+  ["聯合報：陳珍裕參選人親送外送", "https://udn.com/news/story/124652/9568814"],
+  ["自由時報：黃文政登記爭取連任", "https://news.ltn.com.tw/news/politics/breakingnews/5555639"]
+];
+
+const ids = Object.keys(C);
+let answers = new Array(Q.length).fill(null); // 存選項在原始陣列中的索引，-1 為跳過
+let cur = 0;
+const order = Q.map(q => shuffle(q.o.map((_, i) => i)));
+let finished = false;
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// 每位參選人在各題可拿到的最高分，作為分母
+const maxPer = Object.fromEntries(ids.map(id => [id, Q.reduce((s, q) => s + Math.max(0, ...q.o.map(o => o.w[id] || 0)), 0)]));
+const SHRINK = 4;
+
+function score(ans) {
+  const raw = Object.fromEntries(ids.map(id => [id, 0]));
+  ans.forEach((a, qi) => { if (a != null && a >= 0) for (const [id, w] of Object.entries(Q[qi].o[a].w)) raw[id] += w; });
+  return ids.map(id => ({ id, raw: raw[id], pct: Math.round(100 * raw[id] / (maxPer[id] + SHRINK)) }))
+    .sort((a, b) => b.pct - a.pct || b.raw - a.raw);
+}
+
+function renderProgress() {
+  $("progress").innerHTML = Q.map((_, i) => `<span class="${i === cur ? "now" : answers[i] != null ? "done" : ""}"></span>`).join("");
+}
+
+function renderQ() {
+  const q = Q[cur];
+  $("qcount").textContent = `第 ${cur + 1} 題／共 ${Q.length} 題`;
+  $("qtopic").textContent = q.topic;
+  $("qtitle").textContent = q.title;
+  const rows = order[cur].map((oi, k) => {
+    const on = answers[cur] === oi;
+    return `<button type="button" class="opt" data-i="${oi}" aria-pressed="${on}"><span class="no">${k + 1}</span><span class="txt">${esc(q.o[oi].t)}</span><span class="box"><span class="stamp" aria-hidden="true">卜</span></span></button>`;
+  });
+  const skipOn = answers[cur] === -1;
+  rows.push(`<button type="button" class="opt skip" data-i="-1" aria-pressed="${skipOn}"><span class="no">—</span><span class="txt">這幾項都不是我最在意的</span><span class="box"><span class="stamp" aria-hidden="true">卜</span></span></button>`);
+  $("options").innerHTML = rows.join("");
+  $("prev").disabled = cur === 0;
+  $("next").textContent = cur === Q.length - 1 ? "開票" : "下一題";
+  $("next").disabled = answers[cur] == null;
+  renderProgress();
+}
+
+$("options").addEventListener("click", e => {
+  const b = e.target.closest(".opt"); if (!b) return;
+  answers[cur] = Number(b.dataset.i);
+  renderQ();
+  if (cur < Q.length - 1) setTimeout(() => { cur++; renderQ(); }, 420);
+});
+$("prev").addEventListener("click", () => { if (cur > 0) { cur--; renderQ(); } });
+$("next").addEventListener("click", () => {
+  if (answers[cur] == null) return;
+  if (cur < Q.length - 1) { cur++; renderQ(); } else showResult();
+});
+$("retake").addEventListener("click", () => {
+  answers = new Array(Q.length).fill(null); cur = 0; finished = false;
+  $("result").hidden = true; $("quiz").hidden = false; renderQ(); renderCards();
+  $("quiz").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+function evidence(id) {
+  const c = C[id];
+  const items = EV[id].map(it => `<li>${esc(it.t)}<span class="links">${it.s.map(s => `<a href="${s.u}" target="_blank" rel="noopener">${esc(s.l)}</a>`).join("")}</span></li>`).join("");
+  const all = PROFILE[id] ? `<p class="src">想看全部紀錄：<a href="${PROFILE[id]}" target="_blank" rel="noopener">新竹市議會官網・${esc(c.name)}議員頁（所有提案與質詢逐字稿）</a></p>` : "";
+  return `<ul class="ev">${items}</ul><p class="src">資料類型：${esc(c.src)}。點連結可直接開啟原始檔。</p>${all}`;
+}
+
+const EXCLUDED_NOTE = `<p class="excluded"><strong>注意：</strong><b>鄭宏輝、曾翰揚、許登淇、劉詳樽</b>這 4 位東區參選人，<strong>因為找不到具體政見，所以並不納入配對範圍內</strong>。你的結果只在其餘 15 位之間比較。</p>`;
+
+function showResult() {
+  finished = true;
+  const s = score(answers);
+  const answered = answers.filter(a => a != null && a >= 0).length;
+  $("quiz").hidden = true; $("result").hidden = false;
+  if (answered === 0) {
+    $("winner").innerHTML = `<p>12 題都跳過了，沒有可以比對的議題。按「重新作答」再試一次。</p>${EXCLUDED_NOTE}`;
+    $("rank").innerHTML = ""; renderCards(); return;
+  }
+  const top = C[s[0].id];
+  const ties = s.filter(x => x.pct === s[0].pct).length;
+  $("winner").innerHTML = `
+    <div class="code"><div class="seal">${top.code}</div>
+      <div><p class="pct">最接近你的是候選人「${top.code}」・契合度 ${s[0].pct}%${ties > 1 ? `（另有 ${ties - 1} 位同分）` : ""}</p>
+      <p class="name">${esc(top.name)}</p></div></div>
+    <p class="bio">${esc(top.bio)}</p>
+    <div class="tags">${top.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+    <div class="why"><h3>這位參選人實際提過的事（點連結看原始檔）</h3>${evidence(s[0].id)}</div>
+    ${EXCLUDED_NOTE}`;
+  const maxPct = Math.max(1, s[0].pct);
+  $("rank").innerHTML = s.map((x, i) => `
+    <div class="rank-row"><span class="r">${i + 1}</span><span>${C[x.id].code}・${esc(C[x.id].name)}</span>
+    <span class="bar"><i style="width:${Math.round(100 * x.pct / maxPct)}%"></i></span><span class="v">${x.pct}%</span></div>`).join("") + EXCLUDED_NOTE;
+  renderCards();
+  $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderCards() {
+  const list = ids.slice().sort((a, b) => "甲乙丙丁戊己庚辛壬癸子丑寅卯辰".indexOf(C[a].code) - "甲乙丙丁戊己庚辛壬癸子丑寅卯辰".indexOf(C[b].code));
+  $("cards").innerHTML = list.map(id => {
+    const c = C[id];
+    const head = finished
+      ? `<span class="who">${esc(c.name)}<small>候選人「${c.code}」</small></span>`
+      : `<span class="who">候選人「${c.code}」<small>身分於開票後揭曉</small></span>`;
+    const more = finished
+      ? `<p class="bio">${esc(c.bio)}</p><details><summary>看證據與原始出處</summary>${evidence(id)}</details>`
+      : `<p class="locked">完成 12 題後顯示身分與證據</p>`;
+    return `<article class="card${finished ? " revealed" : ""}"><header><span class="glyph">${c.code}</span>${head}</header>
+      <div class="tags">${c.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+      <p class="style">${esc(c.style)}</p>${more}</article>`;
+  }).join("");
+  $("dexIntro").textContent = finished
+    ? "開票後已揭曉 15 位參選人身分。每張卡片可展開看證據與出處。"
+    : "15 位參選人的特點，從議會提案、質詢逐字稿、選舉公報、競選網站與新聞報導歸納。作答完成前只顯示代號，開票後揭曉身分與證據出處。";
+}
+
+$("thinList").innerHTML = THIN.map(([n, d]) => `<li><strong>${esc(n)}</strong>：${esc(d)}</li>`).join("");
+$("sources").innerHTML = "<strong>主要出處</strong>" + SOURCES.map(([t, u]) => `<span>${esc(t)}：<a href="${u}" target="_blank" rel="noopener">${esc(u)}</a></span>`).join("");
+
+renderQ(); renderCards();
+</script>
+
+</body>
+</html>
